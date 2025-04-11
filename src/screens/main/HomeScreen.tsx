@@ -14,6 +14,8 @@ const HomeScreen = () => {
     { id: '1', text: '🧬  치매는 유전병일까요? ' },
     { id: '2', text: '👵🏻  치매는 노인들만 걸리는 병일까요? ' },
     { id: '3', text: '🤒  치매와 알츠하이머는 같은 병일까요? ' },
+    // { id: '4', text: '💭  치매와 단순 건망증은 어떻게 구별하나요? ' },
+    // { id: '5', text: '😄  치매는 완치가 가능한가요? ' },
   ];
 
   return (
@@ -34,7 +36,7 @@ const HomeScreen = () => {
                 <Icon name="chevron-forward" size={16} color="gray" />
               </View>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.row}>
+            <TouchableOpacity style={styles.row} onPress={() => navigation.navigate('BiometricStart')}>
               <CustomText style={styles.cardText}>생체정보 입력</CustomText>
               <View style={styles.statusContainer}>
                 <CustomText style={styles.status}>미완</CustomText>
@@ -47,7 +49,7 @@ const HomeScreen = () => {
           </TouchableOpacity>
         </View>
 
-        <View style={styles.section}>
+        <View style={styles.sectionSecondary}>
           <View style={styles.row}>
             <CustomText weight="bold" style={styles.sectionTitle}>진단 결과 보기</CustomText>
             <TouchableOpacity>
@@ -59,7 +61,7 @@ const HomeScreen = () => {
           </View>
         </View>
 
-        <View style={styles.section}>
+        <View style={styles.sectionSecondary}>
           <View style={styles.row}>
             <CustomText weight="bold" style={styles.sectionTitle}>치매 알아보기</CustomText>
             <TouchableOpacity>
@@ -71,6 +73,21 @@ const HomeScreen = () => {
               <CustomText style={styles.infoText}>{item.text}</CustomText>
             </TouchableOpacity>
           ))}
+        </View>
+
+        <View style={styles.sectionSecondary}>
+          <View style={styles.row}>
+            <CustomText weight="bold" style={styles.sectionTitle}>치매 예방하기</CustomText>
+          </View>
+            <TouchableOpacity style={styles.preventionCard}>
+              <CustomText style={styles.infoText}>치매 예방 체조</CustomText>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.preventionCard}>
+              <CustomText style={styles.infoText}>치매 예방 체조</CustomText>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.preventionCard}>
+              <CustomText style={styles.infoText}>치매 예방 체조</CustomText>
+            </TouchableOpacity>
         </View>
       </ScrollView>
     </View>
@@ -93,13 +110,16 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   loginText: {
-    fontSize: 16,
+    fontSize: 24,
   },
   section: {
     marginTop: 20,
   },
+  sectionSecondary: {
+    marginTop: 30,
+  },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: 24,
     marginBottom: 8,
   },
   card: {
@@ -116,7 +136,7 @@ const styles = StyleSheet.create({
   },
   cardText: {
     paddingLeft: 6,
-    fontSize: 12,
+    fontSize: 18,
     color: '#6C6C6B',
   },
   statusContainer: {
@@ -125,7 +145,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   status: {
-    fontSize: 9,
+    fontSize: 12,
     color: '#9F9E9B',
   },
   disabledButton: {
@@ -136,23 +156,23 @@ const styles = StyleSheet.create({
     backgroundColor: '#F2EFED',
   },
   buttonText: {
-    fontSize: 12,
+    fontSize: 18,
     color: '#B4B4B4',
   },
   moreText: {
-    fontSize: 10,
+    fontSize: 16,
     color: '#868481',
   },
   resultBox: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 38,
+    paddingVertical: 50,
     paddingHorizontal: 12,
     borderRadius: 10,
     backgroundColor: '#F2EAE3',
   },
   resultText: {
-    fontSize: 12,
+    fontSize: 18,
     color: '#6C6C6B',
   },
   infoCard: {
@@ -163,8 +183,15 @@ const styles = StyleSheet.create({
   },
   infoText: {
     paddingLeft: 6,
-    fontSize: 12,
-    color: '#434240',
+    fontSize: 18,
+    color: '#6C6C6B',
+  },
+  preventionCard: {
+    paddingLeft: 12,
+    paddingVertical: 20,
+    marginVertical: 5,
+    borderRadius: 10,
+    backgroundColor: '#F2EAE3',
   },
 });
 
