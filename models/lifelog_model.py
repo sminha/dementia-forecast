@@ -39,11 +39,20 @@ class LifelogTrainer:
         self.label_encoder = LabelEncoder()
         self.train_data_path = os.path.join("..", "data", "lifelog_train.csv")
         self.test_data_path = os.path.join("..", "data", "lifelog_test.csv")
+        self.model_save_path = os.path.join("..", "models")
+        
+        if not os.path.exists(self.model_save_path):
+            os.makedirs(self.model_save_path)
 
     def load_and_preprocess_data(self, filepath):
         df = pd.read_csv(filepath)
-        df = df.drop(columns=['EMAIL', 'activity_day_end'], errors='ignore')
-        df = df.dropna()
+        df = df.drop(columns=['EMAIL', 'activity_day_end', 'activity_day_start', 'sleep_bedtime_end', 'sleep_bedtime_start'], errors='ignore')
+
+        df = df.drop(columns = ['CONVERT(activity_class_5min USING utf8)', 'CONVERT(activity_met_1min USING utf8)', 'CONVERT(sleep_hypnogram_5min USING utf8)', 
+                                'CONVERT(sleep_rmssd_5min USING utf8)', 'CONVERT(sleep_hr_5min USING utf8)'], errors='ignore')
+        
+        df = df.replace('...', 0)
+        df = df.fillna(0)
 
         df['DIAG_NM'] = df['DIAG_NM'].replace({'CN': 0, 'MCI': 1, 'Dem': 1})
 
@@ -52,7 +61,7 @@ class LifelogTrainer:
         labels = []
 
         for _, group in grouped:
-            features = group.drop(columns=['EMAIL', 'ID', 'activity_day_start', 'activity_day_end', 'DIAG_NM']).values
+            features = group.drop(columns=['ID','DIAG_NM']).values
             label = group['DIAG_NM'].values[0]
             if features.shape[0] == 3:
                 feature_data.append(features.flatten())
@@ -91,6 +100,39 @@ class LifelogTrainer:
         f1 = f1_score(all_labels, all_preds, average='weighted')
         auc = roc_auc_score(all_labels, all_preds)
         return acc, f1, auc
+    
+    def save_model(self, model, input_dim, metrics=None):
+        """
+        모델과 관련 정보를 저장하는 메소드
+        
+        Args:
+            model: 저장할 PyTorch 모델
+            input_dim: 모델의 입력 차원
+            metrics: 모델 성능 지표 (딕셔너리)
+        """
+        # 모델 가중치 저장
+        model_path = os.path.join(self.model_save_path, "lifelog_model.pt")
+        torch.save(model.state_dict(), model_path)
+        
+        # 모델 구조 및 하이퍼파라미터 저장
+        model_info = {
+            'input_dim': input_dim,
+            'hidden_dim': 64,  # 모델에서 사용한 하이퍼파라미터
+            'output_dim': 2,
+            'scaler': self.scaler,
+            'label_encoder': self.label_encoder
+        }
+        
+        # 성능 지표가 제공된 경우 함께 저장
+        if metrics:
+            model_info.update(metrics)
+        
+        # 모델 정보 저장
+        info_path = os.path.join(self.model_save_path, "model_info.pt")
+        torch.save(model_info, info_path)
+        
+        print(f"모델이 저장되었습니다: {model_path}")
+        print(f"모델 정보가 저장되었습니다: {info_path}")
 
     def run(self):
         X_train, y_train = self.load_and_preprocess_data(self.train_data_path)
@@ -111,6 +153,14 @@ class LifelogTrainer:
 
         acc, f1, auc = self.evaluate_model(model, test_loader)
         print(f"Test Accuracy: {acc:.4f}, F1 Score: {f1:.4f}, AUC: {auc:.4f}")
+        
+        # 모델 저장
+        metrics = {
+            'accuracy': acc,
+            'f1_score': f1,
+            'auc': auc
+        }
+        self.save_model(model, X_train.shape[1], metrics)
 
 if __name__ == '__main__':
     trainer = LifelogTrainer()
