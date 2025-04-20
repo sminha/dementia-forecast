@@ -12,7 +12,7 @@ const EmailSignUpCompleteScreen = () => {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigation.navigate('Home');
+      navigation.navigate('Login');
     }, 3000);
 
     return () => clearTimeout(timer);
