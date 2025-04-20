@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Pressable, Keyboard, View, SafeAreaView, TouchableOpacity, ScrollView, TextInput, StyleSheet } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import Modal from 'react-native-modal';
@@ -6,7 +6,7 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import Postcode from '@actbase/react-daum-postcode';
 import { RootStackParamList } from '../../types/navigationTypes.ts';
-import { setFormData } from '../../redux/slices/signupSlice.ts';
+import { setFormData, clearRegistrationResult, registerUser } from '../../redux/slices/signupSlice.ts';
 import { AppDispatch, RootState } from '../../redux/store.ts';
 import CustomText from '../../components/CustomText.tsx';
 import Icon from '../../components/Icon.tsx';
@@ -17,12 +17,68 @@ const EmailSignUpScreen = () => {
 
   const dispatch = useDispatch<AppDispatch>();
   const formData = useSelector((state: RootState) => state.signup.formData);
+  const isLoading = useSelector((state: RootState) => state.signup.isLoading);
+  const registrationResult = useSelector((state: RootState) => state.signup.registrationResult);
 
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const [securePassword, setSecurePassword] = useState(true);
   const [secureConfirmPassword, setSecureConfirmPassword] = useState(true);
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isPostcodeVisible, setPostcodeVisible] = useState(false);
+  // const [isErrorModalVisible, setErrorModalVisible] = useState(false);
+
+  const isFirstFocus = useRef(true);
+  const emailInputRef = useRef<TextInput>(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (isFirstFocus.current) {
+        dispatch(setFormData({ field: 'email', value: '' }));
+        dispatch(setFormData({ field: 'password', value: '' }));
+        dispatch(setFormData({ field: 'name', value: '' }));
+        dispatch(setFormData({ field: 'gender', value: '' }));
+        dispatch(setFormData({ field: 'birthdate', value: '' }));
+        dispatch(setFormData({ field: 'phone', value: '' }));
+        dispatch(setFormData({ field: 'address', value: '' }));
+        dispatch(setFormData({ field: 'detailAddress', value: '' }));
+        dispatch(setFormData({ field: 'agreeAll', value: false }));
+        dispatch(setFormData({ field: 'privacyShare', value: false }));
+        dispatch(setFormData({ field: 'privacyUse', value: false }));
+        isFirstFocus.current = false;
+      } else {
+        if (formData.privacyShare && formData.privacyUse) {
+          dispatch(setFormData({ field: 'agreeAll', value: true }));
+        } else {
+          dispatch(setFormData({ field: 'agreeAll', value: false }));
+        }
+      }
+
+      return () => {
+        dispatch(clearRegistrationResult());
+      };
+    }, [dispatch, formData.privacyShare, formData.privacyUse])
+  );
+
+
+  useEffect(() => {
+    if (registrationResult?.statusCode === 200) {
+      navigation.navigate('EmailSignUpComplete');
+    } else if (registrationResult?.message === '이미 존재하는 이메일입니다.')  {
+      setTimeout(() => {
+        emailInputRef.current?.focus();
+      }, 100);
+    } else {
+      // setErrorModalVisible(true);
+    }
+  }, [registrationResult, navigation]);
+
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     setErrorModalVisible(false);
+  //   }, 3000);
+
+  //   return () => clearTimeout(timer);
+  // }, [isErrorModalVisible]);
 
   const handleChange = (field: string, value: string | boolean) => {
     if (field === 'agreeAll') {
@@ -102,21 +158,11 @@ const EmailSignUpScreen = () => {
     );
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      dispatch(setFormData({ field: 'email', value: '' }));
-      dispatch(setFormData({ field: 'password', value: '' }));
-      dispatch(setFormData({ field: 'name', value: '' }));
-      dispatch(setFormData({ field: 'gender', value: '' }));
-      dispatch(setFormData({ field: 'birthdate', value: '' }));
-      dispatch(setFormData({ field: 'phone', value: '' }));
-      dispatch(setFormData({ field: 'address', value: '' }));
-      dispatch(setFormData({ field: 'detailAddress', value: '' }));
-      dispatch(setFormData({ field: 'agreeAll', value: false }));
-      dispatch(setFormData({ field: 'privacyShare', value: false }));
-      dispatch(setFormData({ field: 'privacyUse', value: false }));
-    }, [dispatch])
-  );
+  const handleSignUp = () => {
+    if (isFormValid()) {
+      dispatch(registerUser(formData));
+    }
+  };
 
   return (
     <Pressable onPress={() => {
@@ -124,11 +170,11 @@ const EmailSignUpScreen = () => {
       setSecurePassword(true);
       setSecureConfirmPassword(true);
       }}
-      style={{flex: 1}}
+      style={styles.pressableContainer}
     >
       <View style={styles.container}>
         <SafeAreaView style={styles.safeArea}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
+          <TouchableOpacity onPress={() => navigation.navigate('Login')}>
             <Icon name="chevron-back" size={16} />
           </TouchableOpacity>
         </SafeAreaView>
@@ -146,6 +192,7 @@ const EmailSignUpScreen = () => {
                 onFocus={() => handleFocus('email')}
                 onBlur={() => handleBlur()}
                 onChangeText={(text) => handleChange('email', text)}
+                ref={emailInputRef}
                 value={formData.email}
               />
               {formData.email !== '' &&
@@ -157,6 +204,9 @@ const EmailSignUpScreen = () => {
             <View style={styles.confirmContainer}>
               {formData.email && !isEmailValid(formData.email) && (
                 <CustomText style={formData.email === '' ? styles.confirmTextHidden : styles.confirmText}>이메일 형식이 올바르지 않습니다.</CustomText>
+              )}
+              {registrationResult?.message && (registrationResult.message === '이미 존재하는 이메일입니다.') && (
+                <CustomText style={styles.confirmText}>이미 존재하는 이메일입니다.</CustomText>
               )}
             </View>
           </View>
@@ -238,7 +288,7 @@ const EmailSignUpScreen = () => {
               >
                 <CustomText style={[styles.genderButtonText, formData.gender === '남' && styles.genderButtonTextSelected]}>남</CustomText>
               </TouchableOpacity>
-              {/* <View style={styles.gap} /> */}
+
               <TouchableOpacity
                 style={[styles.genderButtonRight, formData.gender === '여' && styles.genderButtonSelected]}
                 onPress={() => handleChange('gender', '여')}
@@ -319,7 +369,7 @@ const EmailSignUpScreen = () => {
                 color={formData.privacyUse ? '#9F8473' : '#B4B4B4'}
               />
             </Pressable>
-            <CustomText style={styles.checkboxText}>개인정보활용동의</CustomText>
+            <CustomText style={styles.checkboxText}>개인정보 수집 및 이용 동의</CustomText>
             <TouchableOpacity onPress={() => navigation.navigate('PrivacyUsePolicy')}>
               <Icon name="chevron-forward" size={16} color="gray" style={styles.chevronIcon} />
             </TouchableOpacity>
@@ -333,7 +383,7 @@ const EmailSignUpScreen = () => {
                 color={formData.privacyShare ? '#9F8473' : '#B4B4B4'}
               />
             </Pressable>
-            <CustomText style={styles.checkboxText}>개인정보제공동의</CustomText>
+            <CustomText style={styles.checkboxText}>개인정보 제공 동의</CustomText>
             <TouchableOpacity onPress={() => navigation.navigate('PrivacySharePolicy')}>
               <Icon name="chevron-forward" size={16} color="gray" style={styles.chevronIcon} />
             </TouchableOpacity>
@@ -342,9 +392,19 @@ const EmailSignUpScreen = () => {
         </ScrollView>
 
         <View>
-          <TouchableOpacity onPress={() => navigation.navigate('EmailSignUpComplete')} style={[styles.button, isFormValid() ? styles.buttonAbled : styles.buttonDisabled]} disabled={!isFormValid()}>
-            <CustomText style={[styles.buttonText, isFormValid() ? styles.buttonTextAbled : styles.buttonTextDisabled]}>회원가입</CustomText>
+          <TouchableOpacity
+            onPress={handleSignUp}
+            style={[styles.button, isFormValid() && !isLoading ? styles.buttonAbled : styles.buttonDisabled]}
+            disabled={!isFormValid() || isLoading}
+          >
+            <CustomText style={[styles.buttonText, isFormValid() && !isLoading ? styles.buttonTextAbled : styles.buttonTextDisabled]}>
+              {isLoading ? '회원가입 중...' : '회원가입'}
+            </CustomText>
           </TouchableOpacity>
+
+          {/* {registrationResult?.message && (
+            <CustomText>{registrationResult.message}</CustomText>
+          )} */}
         </View>
 
         <Modal
@@ -368,12 +428,29 @@ const EmailSignUpScreen = () => {
             />
           </View>
         </Modal>
+
+        {/* <Modal
+          isVisible={isErrorModalVisible}
+          backdropColor="rgb(69, 69, 69)"
+          backdropOpacity={0.3}
+          animationIn="fadeIn"
+          animationOut="fadeOut"
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <CustomText style={styles.modalTitle}>서버 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.</CustomText>
+            </View>
+          </View>
+        </Modal> */}
       </View>
     </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
+  pressableContainer: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     paddingVertical: 10,
@@ -386,8 +463,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   header: {
-    paddingTop: 40,
-    paddingBottom: 50,
+    paddingVertical: 40,
     paddingHorizontal: 20,
   },
   backButton: {
@@ -420,7 +496,7 @@ const styles = StyleSheet.create({
   clearButton: {
     position: 'absolute',
     top: '50%',
-    right: 5,
+    right: 1,
     transform: [{ translateY: -8 }],
   },
   input: {
@@ -553,6 +629,23 @@ const styles = StyleSheet.create({
   postcode: {
     flex: 1,
   },
+  // modalOverlay: {
+  //   flex: 1,
+  //   alignItems: 'center',
+  //   justifyContent: 'center',
+  //   backgroundColor: 'rgba(69, 69, 69, 0.3)',
+  // },
+  // modalContent: {
+  //   alignItems: 'center',
+  //   width: '90%',
+  //   padding: 10,
+  //   borderRadius: 10,
+  //   backgroundColor: '#FFFFFF',
+  // },
+  // modalTitle: {
+  //   marginVertical: 40,
+  //   fontSize: 24,
+  // },
 });
 
 export default EmailSignUpScreen;
