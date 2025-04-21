@@ -3,7 +3,7 @@ from fastapi import FastAPI, HTTPException, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
-from multimodal import MultimodalModel
+from models.multimodal import MultimodalModel
 import numpy as np
 import pandas as pd
 
@@ -28,9 +28,9 @@ multimodal_model = MultimodalModel()
 multimodal_model.load_models()
 
 class LifelogData(BaseModel):
-    day1: List[float]
-    day2: Optional[List[float]] = None
-    day3: Optional[List[float]] = None
+    day1: List[Any]
+    day2: Optional[List[Any]] = None
+    day3: Optional[List[Any]] = None
 
 class LifestyleData(BaseModel):
     data: Dict[str, Any]

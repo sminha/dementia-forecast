@@ -4,15 +4,17 @@ import torch
 import os
 import joblib
 from sklearn.metrics import roc_auc_score
-from lifelog_model import LifelogModel, LifelogTrainer
-from lifestyle_model import Tabular_Model
+from .lifelog_model import LifelogModel, LifelogTrainer
+from .lifestyle_model import Tabular_Model
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 import torch.serialization
+
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 class MultimodalModel:
     def __init__(self):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.model_dir = os.getcwd()
+        self.model_dir = os.path.join(BASE_DIR, "models")
         self.lifelog_trainer = LifelogTrainer()
         self.lifestyle_model = Tabular_Model(data_dir="../data")
         self.lifelog_model_path = os.path.join(self.model_dir, "lifelog_model.pt")
@@ -20,7 +22,7 @@ class MultimodalModel:
         self.lifestyle_model_path = os.path.join(self.model_dir, "lifestyle_model.pkl")
         self.lifelog_model = None
         self.ensemble_weights = {"lifelog": 0.5, "lifestyle": 0.5}
-    
+
     def load_models(self):
         torch.serialization.add_safe_globals([
             StandardScaler,
@@ -39,16 +41,26 @@ class MultimodalModel:
         print("Models successfully loaded.")
 
     def predict(self, lifelog_data, lifestyle_data):
-        lifelog_tensor = torch.tensor(lifelog_data, dtype=torch.float32).to(self.device)
+        # lifelog feature vector를 모두 0으로 만듦
+        NUMERIC_INDICES_ONE_DAY = (
+            list(range(1, 32))
+        )
+        days = 3  # 또는 실제 들어온 days 수
+        n_features = len(NUMERIC_INDICES_ONE_DAY) * days
+        X_lifelog = np.zeros((1, n_features), dtype=float)
+        lifelog_tensor = torch.tensor(X_lifelog, dtype=torch.float32).to(self.device)
+
         with torch.no_grad():
             lifelog_outputs = self.lifelog_model(lifelog_tensor)
             lifelog_probs = torch.softmax(lifelog_outputs, dim=1)[:, 1].cpu().numpy()
+
         lifestyle_probs = self.lifestyle_model.predict(lifestyle_data)
         ensemble_pred = (
-            self.ensemble_weights["lifelog"] * lifelog_probs + 
+            self.ensemble_weights["lifelog"] * lifelog_probs +
             self.ensemble_weights["lifestyle"] * lifestyle_probs
         )
         return ensemble_pred
+
     
     def set_ensemble_weights(self, lifelog_weight=0.5, lifestyle_weight=0.5):
         total = lifelog_weight + lifestyle_weight
