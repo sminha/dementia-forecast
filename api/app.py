@@ -27,53 +27,65 @@ def read_root():
 multimodal_model = MultimodalModel()
 multimodal_model.load_models()
 
-class LifelogData(BaseModel):
-    day1: List[Any]
-    day2: Optional[List[Any]] = None
-    day3: Optional[List[Any]] = None
+class LifelogRecord(BaseModel):
+    activity_cal_active: float
+    activity_cal_total: float
+    activity_daily_movement: float
+    activity_day_end: float
+    activity_day_start: float
+    activity_high: float
+    activity_inactive: float
+    activity_medium: float
+    activity_met_1min: float
+    activity_met_min_high: float
+    activity_met_min_inactive: float
+    activity_met_min_low: float
+    activity_met_min_medium: float
+    activity_non_wear: float
+    activity_steps: float
+    activity_total: float
+    sleep_awake: float
+    sleep_bedtime_end: float
+    sleep_bedtime_start: float
+    sleep_deep: float
+    sleep_duration: float
+    sleep_efficiency: float
+    sleep_hypnogram_5min: float
+    sleep_is_longest: float
+    sleep_light: float
+    sleep_midpoint_at_delta: float
+    sleep_midpoint_time: float
+    sleep_period_id: float
+    sleep_rem: float
+    sleep_rmssd: float
+    sleep_rmssd_5min: float
+    sleep_total: float
 
-class LifestyleData(BaseModel):
-    data: Dict[str, Any]
+class MultimodalRequest(BaseModel):
+    lifelog: List[LifelogRecord]  
+    lifestyle: Dict[str, Any]     
 
-class MultimodalPredictionRequest(BaseModel):
-    lifelog: LifelogData
-    lifestyle: LifestyleData
-
-class MultimodalPredictionResponse(BaseModel):
+class MultimodalResponse(BaseModel):
     statusCode: int
     message: str
     risk_score: float
 
-
-@app.post("/prediction/multimodal", response_model=MultimodalPredictionResponse)
-def multimodal_prediction(request: MultimodalPredictionRequest):
+@app.post("/prediction/multimodal", response_model=MultimodalResponse)
+def predict_multimodal(req: MultimodalRequest):
     try:
-        lifelog_list = [request.lifelog.day1]
-        days_used = 1
-        
-        if request.lifelog.day2 is not None:
-            lifelog_list.append(request.lifelog.day2)
-            days_used = 2
-            
-        if request.lifelog.day3 is not None:
-            lifelog_list.append(request.lifelog.day3)
-            days_used = 3
-        
-        lifelog_data = np.array(lifelog_list).flatten().reshape(1, -1)
-        
-        lifestyle_data = pd.DataFrame([request.lifestyle.data])
-        
-        prediction_result = multimodal_model.predict(lifelog_data, lifestyle_data)
-        
-        if isinstance(prediction_result, np.ndarray) and len(prediction_result) > 0:
-            risk_score = float(prediction_result[0])
-        else:
-            risk_score = float(prediction_result)
-            
-        return {
-            "statusCode": 200,
-            "message": f"Multimodal prediction completed successfully using {days_used} days of lifelog data",
-            "risk_score": risk_score
-        }
+        df_lifelog = pd.DataFrame([r.dict() for r in req.lifelog])
+ 
+        lifelog_ary = df_lifelog.values.flatten().reshape(1, -1)
+
+        df_lifestyle = pd.DataFrame([req.lifestyle])
+
+        preds = multimodal_model.predict(lifelog_ary, df_lifestyle)
+        score = float(preds[0]) if isinstance(preds, np.ndarray) else float(preds)
+
+        return MultimodalResponse(
+            statusCode=200,
+            message=f"Multimodal prediction completed successfully using {len(req.lifelog)} days of lifelog data",
+            risk_score=score
+        )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to process multimodal prediction: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Prediction failed: {e}")

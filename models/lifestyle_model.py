@@ -130,7 +130,7 @@ if __name__ == "__main__":
     
     # Run the model pipeline
     # To train a new model and save it:
-    auc_score = model.run(save_path="./lifestyle_model.pkl")
+    auc_score = model.run(save_path="./lifestyle_model2.pkl")
     
     # To load a pre-trained model and evaluate it:
     print(f"Final ROC AUC Score: {auc_score}")
