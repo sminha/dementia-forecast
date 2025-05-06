@@ -15,7 +15,13 @@ import LifestyleStartScreen from './src/screens/lifestyle/LifestyleStartScreen.t
 import LifestyleQuestionScreen from './src/screens/lifestyle/LifestyleQuestionScreen.tsx';
 import LifestyleCompleteScreen from './src/screens/lifestyle/LifestyleCompleteScreen.tsx';
 import BiometricStartScreen from './src/screens/biometric/BiometricStartScreen.tsx';
+import BiometricOverviewScreen from './src/screens/biometric/BiometricOverviewScreen.tsx';
 import BiometricCompleteScreen from './src/screens/biometric/BiometricCompleteScreen.tsx';
+import ReportStartScreen from './src/screens/report/ReportStartScreen.tsx';
+import ReportResultScreen from './src/screens/report/ReportResultScreen.tsx';
+import MypageScreen from './src/screens/mypage/MypageScreen.tsx';
+import DementiaInfoListScreen from './src/screens/dementiaInfo/DementiaInfoListScreen.tsx';
+import DementiaInfoDetailScreen from './src/screens/dementiaInfo/DementiaInfoDetailScreen.tsx';
 
 const Stack = createStackNavigator();
 
@@ -85,8 +91,38 @@ function App(): React.JSX.Element {
             options={{ headerShown: false }}
           />
           <Stack.Screen
+            name="BiometricOverview"
+            component={BiometricOverviewScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
             name="BiometricComplete"
             component={BiometricCompleteScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="ReportStart"
+            component={ReportStartScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="ReportResult"
+            component={ReportResultScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Mypage"
+            component={MypageScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="DementiaInfoList"
+            component={DementiaInfoListScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="DementiaInfoDetail"
+            component={DementiaInfoDetailScreen}
             options={{ headerShown: false }}
           />
         </Stack.Navigator>
