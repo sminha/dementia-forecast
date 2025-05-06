@@ -1,14 +1,18 @@
 import React from 'react';
 import { ScrollView, View, TouchableOpacity, StyleSheet } from 'react-native';
+import { useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../../types/navigationTypes.ts';
+import { RootState } from '../../redux/store.ts';
 import CustomText from '../../components/CustomText.tsx';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 const HomeScreen = () => {
   type Navigation = StackNavigationProp<RootStackParamList, 'Home'>;
   const navigation = useNavigation<Navigation>();
+
+  const name = useSelector((state: RootState) => state.login.loginResult?.name);
 
   const dementiaInfo = [
     { id: '1', text: '🧬  치매는 유전병일까요? ' },
@@ -20,9 +24,19 @@ const HomeScreen = () => {
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent} overScrollMode="never">
-        <TouchableOpacity style={styles.loginContainer} onPress={() => navigation.navigate('Login')}>
-          <CustomText style={styles.loginText}>로그인이 필요합니다. </CustomText>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false} overScrollMode="never">
+        <TouchableOpacity
+          style={styles.loginContainer}
+          onPress={() => {
+            typeof name === 'string' ? navigation.navigate('Mypage') : navigation.navigate('Login');
+          }}
+        >
+        {typeof name === 'string' ? (
+          <CustomText style={styles.loginText}>{`${name}님, 안녕하세요!`}</CustomText>
+        ) : (
+          <CustomText style={styles.loginText}>로그인이 필요합니다.</CustomText>
+        )}
+
           <Icon name="chevron-forward" size={16} color="gray" />
         </TouchableOpacity>
 
@@ -52,7 +66,7 @@ const HomeScreen = () => {
         <View style={styles.sectionSecondary}>
           <View style={styles.row}>
             <CustomText weight="bold" style={styles.sectionTitle}>진단 결과 보기</CustomText>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('ReportStart')}>
               <CustomText style={styles.moreText}>더보기</CustomText>
             </TouchableOpacity>
           </View>
@@ -64,7 +78,7 @@ const HomeScreen = () => {
         <View style={styles.sectionSecondary}>
           <View style={styles.row}>
             <CustomText weight="bold" style={styles.sectionTitle}>치매 알아보기</CustomText>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('DementiaInfoList')}>
               <CustomText style={styles.moreText}>더보기</CustomText>
             </TouchableOpacity>
           </View>
