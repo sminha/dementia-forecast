@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   title: {
-    fontSize: 16,
+    fontSize: 24,
   },
   imageContainer: {
     flex: 2,
