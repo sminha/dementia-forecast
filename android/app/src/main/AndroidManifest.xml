@@ -1,6 +1,30 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+  package="com.dementiaforecast">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <!--백그라운드 읽기-->
+    <uses-permission android:name="android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND" />
+    <!-- 기록 읽기-->
+    <uses-permission android:name="android.permission.health.READ_HEALTH_DATA_HISTORY" />
+    <!-- 걸음수 -->
+    <uses-permission android:name="android.permission.health.READ_STEPS" />
+    <!-- 이동거리 -->
+    <uses-permission android:name="android.permission.health.READ_DISTANCE" />
+    <!-- 수면세션 -->
+    <uses-permission android:name="android.permission.health.READ_SLEEP" />
+    <!-- 활동세션 -->
+    <uses-permission android:name="android.permission.health.READ_EXERCISE" />
+    <!-- 심박수 -->
+    <uses-permission android:name="android.permission.health.READ_HEART_RATE" />
+    <!-- 휴식심박수 -->
+    <uses-permission android:name="android.permission.health.READ_RESTING_HEART_RATE" />
+    <!-- 기초대사율 -->
+    <uses-permission android:name="android.permission.health.READ_BASAL_METABOLIC_RATE" />
+    <!-- 활동칼로리 -->
+    <uses-permission android:name="android.permission.health.READ_ACTIVE_CALORIES_BURNED" />
+    <!-- 총칼로리 -->
+    <uses-permission android:name="android.permission.health.READ_TOTAL_CALORIES_BURNED" />
+    <!-- <uses-permission android:name="com.samsung.android.health.permission.READ_HEALTH_DATA"/> -->
 
     <application
       android:name=".MainApplication"
