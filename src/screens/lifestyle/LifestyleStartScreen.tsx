@@ -12,7 +12,7 @@ const LifestyleStartScreen = () => {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigation.navigate('LifestyleQuestion');
+      navigation.replace('LifestyleQuestion');
     }, 3000);
 
     return () => clearTimeout(timer);
