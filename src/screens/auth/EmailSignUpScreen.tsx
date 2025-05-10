@@ -183,7 +183,7 @@ const EmailSignUpScreen = () => {
           <CustomText style={styles.title}>이메일로 회원가입하기</CustomText>
         </View>
 
-        <ScrollView contentContainerStyle={styles.scrollContent} overScrollMode="never">
+        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false} overScrollMode="never">
           <View style={styles.row}>
             <CustomText style={[styles.label, focusedField === 'email' && styles.focusedLabel]}>이메일</CustomText>
             <View style={styles.inputFieldWrapper}>
