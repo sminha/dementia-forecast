@@ -27,7 +27,7 @@ const PrivacyUsePolicySreen = () => {
         <CustomText style={styles.titleText}>개인정보 수집 및 이용 동의</CustomText>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContentContainer} overScrollMode="never">
+      <ScrollView contentContainerStyle={styles.scrollContentContainer} showsVerticalScrollIndicator={false} overScrollMode="never">
         <CustomText style={styles.sectionTitle}>개인정보 수집 및 이용 동의</CustomText>
         <CustomText style={styles.contentText}>
         치매예보(이하 “회사”)가 제공하는 본 서비스를 이용함에 있어, 「개인정보 보호법」 제23조, 제24조, 제24조의2에 따라 민감정보를 처리하기 위하여 회사는 정보주체인 귀하의 동의가 필요합니다. 회사는 사용자의 건강과 삶의 질을 증진시키기 위해 다음의 정보가 중요하다는 점을 인식하고, 해당 정보를 안전하게 관리하기 위하여 별도의 민감정보 수집에 대한 동의를 받고자 합니다.{'\n'}

@@ -27,7 +27,7 @@ const PrivacySharePolicySreen = () => {
         <CustomText style={styles.titleText}>개인정보 제공 동의</CustomText>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContentContainer} overScrollMode="never">
+      <ScrollView contentContainerStyle={styles.scrollContentContainer} showsVerticalScrollIndicator={false} overScrollMode="never">
         <CustomText style={styles.sectionTitle}>개인정보 제공 동의</CustomText>
         <CustomText style={styles.contentText}>
         치매예보(이하 “회사”)가 제공하는 본 서비스를 이용함에 있어, 「개인정보 보호법」 제17조 및 제18조에 따라 개인정보를 제3자에게 제공하기 위하여 정보주체인 귀하의 동의가 필요합니다. 회사는 사용자의 건강과 삶의 질을 증진시키기 위해 수집한 정보를 안전하게 관리하고, 아래와 같은 목적에 한하여 필요한 범위 내에서 개인정보를 제3자에게 제공하고자 합니다.{'\n'}
