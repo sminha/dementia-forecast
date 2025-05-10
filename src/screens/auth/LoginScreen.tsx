@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, SafeAreaView, TouchableOpacity, Modal, TouchableWithoutFeedback, StyleSheet } from 'react-native';
+import { View, SafeAreaView, TouchableOpacity, Modal, TouchableWithoutFeedback, StyleSheet, Linking } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../../types/navigationTypes.ts';
@@ -25,7 +25,7 @@ const LoginScreen = () => {
       </View>
 
       <View style={styles.bottomArea}>
-        <TouchableOpacity style={[styles.authBox, styles.kakaoBox]}>
+        <TouchableOpacity style={[styles.authBox, styles.kakaoBox]} onPress={() => Linking.openURL('https://BACKEND_URL/auth/kakao')}>
           <Icon name="chatbubble" size={24} color="#3C1E1E" style={styles.icon} />
           <CustomText style={styles.kakaoBoxText}>카카오로 계속하기</CustomText>
         </TouchableOpacity>
