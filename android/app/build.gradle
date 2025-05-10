@@ -75,13 +75,16 @@ def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
 android {
     ndkVersion rootProject.ext.ndkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
-    compileSdk rootProject.ext.compileSdkVersion
+    // compileSdk rootProject.ext.compileSdkVersion
+    compileSdkVersion 36
 
     namespace "com.dementiaforecast"
     defaultConfig {
         applicationId "com.dementiaforecast"
-        minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion rootProject.ext.targetSdkVersion
+        // minSdkVersion rootProject.ext.minSdkVersion
+        minSdkVersion 26
+        // targetSdkVersion rootProject.ext.targetSdkVersion
+        targetSdkVersion 36
         versionCode 1
         versionName "1.0"
     }
