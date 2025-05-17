@@ -1,30 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools"
   package="com.dementiaforecast">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <!--백그라운드 읽기-->
-    <uses-permission android:name="android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND" />
-    <!-- 기록 읽기-->
-    <uses-permission android:name="android.permission.health.READ_HEALTH_DATA_HISTORY" />
-    <!-- 걸음수 -->
-    <uses-permission android:name="android.permission.health.READ_STEPS" />
-    <!-- 이동거리 -->
-    <uses-permission android:name="android.permission.health.READ_DISTANCE" />
-    <!-- 수면세션 -->
-    <uses-permission android:name="android.permission.health.READ_SLEEP" />
-    <!-- 활동세션 -->
-    <uses-permission android:name="android.permission.health.READ_EXERCISE" />
-    <!-- 심박수 -->
-    <uses-permission android:name="android.permission.health.READ_HEART_RATE" />
-    <!-- 휴식심박수 -->
-    <uses-permission android:name="android.permission.health.READ_RESTING_HEART_RATE" />
-    <!-- 기초대사율 -->
-    <uses-permission android:name="android.permission.health.READ_BASAL_METABOLIC_RATE" />
-    <!-- 활동칼로리 -->
-    <uses-permission android:name="android.permission.health.READ_ACTIVE_CALORIES_BURNED" />
-    <!-- 총칼로리 -->
-    <uses-permission android:name="android.permission.health.READ_TOTAL_CALORIES_BURNED" />
-    <!-- <uses-permission android:name="com.samsung.android.health.permission.READ_HEALTH_DATA"/> -->
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" tools:ignore="ScopedStorage" />
 
     <application
       android:name=".MainApplication"
@@ -33,7 +12,9 @@
       android:roundIcon="@mipmap/ic_launcher_round"
       android:allowBackup="false"
       android:theme="@style/AppTheme"
-      android:supportsRtl="true">
+      android:supportsRtl="true"
+      android:requestLegacyExternalStorage="true"
+      tools:targetApi="30">
       <activity
         android:name=".MainActivity"
         android:label="@string/app_name"
@@ -46,33 +27,8 @@
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
       </activity>
-
-      <!-- For supported versions through Android 13, create an activity to show the rationale
-       of Health Connect permissions once users click the privacy policy link. -->
-      <activity
-        android:name=".PermissionsRationaleActivity"
-        android:exported="true">
-        <intent-filter>
-            <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
-        </intent-filter>
-      </activity>
-
-      <!-- For versions starting Android 14, create an activity alias to show the rationale
-          of Health Connect permissions once users click the privacy policy link. -->
-      <activity-alias
-        android:name="ViewPermissionUsageActivity"
-        android:exported="true"
-        android:targetActivity=".PermissionsRationaleActivity"
-        android:permission="android.permission.START_VIEW_PERMISSION_USAGE">
-        <intent-filter>
-            <action android:name="android.intent.action.VIEW_PERMISSION_USAGE" />
-            <category android:name="android.intent.category.HEALTH_PERMISSIONS" />
-        </intent-filter>
-      </activity-alias>
+      <uses-library
+        android:name="org.apache.http.legacy"
+        android:required="false" />
     </application>
-
-    <!-- Check if Health Connect is installed -->
-    <queries>
-        <package android:name="com.google.android.apps.healthdata" />
-    </queries>
 </manifest>
