@@ -1,9 +1,13 @@
 import React, { useEffect } from 'react';
 import { View, Image, StyleSheet, Linking } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { openExternalStoragePermission } from '../utils/permissionHelper.ts';
+import RNFS from 'react-native-fs';
 
 const SplashScreen = ({ navigation }: any) => {
   useEffect(() => {
+    openExternalStoragePermission();
+
     const handleDeepLink = async () => {
       const url = await Linking.getInitialURL();
       if (url) {
@@ -16,6 +20,15 @@ const SplashScreen = ({ navigation }: any) => {
           return;
         }
       }
+
+      const samsungHealthPath = `${RNFS.DownloadDirectoryPath}/Samsung Health`;
+
+      const readSamsungHealthFolder = async () => {
+        const files = await RNFS.readDir(samsungHealthPath);
+        console.log('Samsung Health 폴더 내 파일 목록:', files);
+      };
+
+      readSamsungHealthFolder();
 
       const timer = setTimeout(() => {
         navigation.replace('Home');
