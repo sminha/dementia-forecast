@@ -35,17 +35,14 @@ class LifelogModel(nn.Module):
     def forward(self, x):
         lstm_out, _ = self.lstm(x)
         
-        # lstm_out의 차원이 3D인지 확인
         if lstm_out.dim() == 2:
-            # LSTM 출력이 2D 텐서인 경우, 배치 크기만 존재하며 시퀀스 차원 정보가 없음
-            lstm_out = lstm_out.unsqueeze(1)  # 2D -> 3D 텐서로 변경 (batch_size, seq_len=1, hidden_dim)
+            lstm_out = lstm_out.unsqueeze(1) 
         
         if lstm_out.dim() != 3:
             raise ValueError(f"LSTM output should be a 3D tensor, but got {lstm_out.dim()} dimensions")
         
-        # 마지막 시간대의 출력만 가져옴
-        lstm_out = lstm_out[:, -1, :]  # (batch_size, hidden_dim * num_directions)
-        out = self.fc(lstm_out)  # FC layer를 통과시킴
+        lstm_out = lstm_out[:, -1, :]  
+        out = self.fc(lstm_out)
         return out
     
 class LifelogTrainer:
@@ -117,7 +114,7 @@ class LifelogTrainer:
         with torch.no_grad():
             for data, labels in test_loader:
                 data, labels = data.to(self.device), labels.to(self.device)
-                outputs = model(data)  # shape: (batch_size, 3)
+                outputs = model(data)  
                 probs = torch.softmax(outputs, dim=1)
                 _, preds = torch.max(probs, 1)
                 all_preds.extend(preds.cpu().numpy())
@@ -131,20 +128,17 @@ class LifelogTrainer:
         return acc, f1, auc
     
     def save_model(self, model, input_dim):
-        # 모델 가중치 저장
         model_path = os.path.join(self.model_save_path, "lifelog_model2.pt")
         torch.save(model.state_dict(), model_path)
-        
-        # 모델 구조 및 하이퍼파라미터 저장
+
         model_info = {
             'input_dim': input_dim,
-            'hidden_dim': 64,  # 모델에서 사용한 하이퍼파라미터
-            'output_dim': 2,   # 3-class로 변경
+            'hidden_dim': 64,  
+            'output_dim': 2,  
             'scaler': self.scaler,
             'label_encoder': self.label_encoder
         }
         
-        # 모델 정보 저장
         info_path = os.path.join(self.model_save_path, "model_info2.pt")
         torch.save(model_info, info_path)
         

@@ -3,7 +3,7 @@ import numpy as np
 import torch
 import os
 import joblib
-from sklearn.metrics import roc_auc_score
+from sklearn.metrics import roc_auc_score, f1_score
 from .lifelog_model import LifelogModel, LifelogTrainer
 from .lifestyle_model import Tabular_Model
 from sklearn.preprocessing import StandardScaler, LabelEncoder
@@ -127,8 +127,10 @@ class MultimodalModel:
         
         predictions = self.predict(X_lifelog, X_lifestyle)
         auc_score = roc_auc_score(y_lifestyle, predictions)
+        f1 = f1_score(y_lifestyle, predictions.round())
         print(f"Multimodal model ROC AUC score: {auc_score:.4f}")
-        return auc_score
+        print(f"Multimodal model F1 score: {f1:.4f}")
+        return auc_score, f1
     
     def run(self, lifelog_test_path="data/lifelog_test.csv", lifestyle_test_path="data/lifestyle_test.csv"):
         if self.lifelog_model is None:
@@ -146,7 +148,8 @@ class MultimodalModel:
         if self.lifestyle_model.target_col in lifestyle_test.columns:
             y_true = lifestyle_test[self.lifestyle_model.target_col]
             auc_score = roc_auc_score(y_true, predictions)
-            print(f"Prediction complete. Model performance: ROC AUC = {auc_score:.4f}")
+            f1 = f1_score(y_true, predictions.round())
+            print(f"Prediction complete. Model performance: ROC AUC = {auc_score:.4f}, F1 = {f1:.4f}")
         else:
             print("Prediction complete.")
         
@@ -154,5 +157,6 @@ class MultimodalModel:
 
 if __name__ == "__main__":
     model = MultimodalModel()
+    model.set_ensemble_weights(lifelog_weight=0.5, lifestyle_weight=0.5)
     predictions = model.run()
     print(f"Prediction: {predictions.shape}")

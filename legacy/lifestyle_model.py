@@ -13,7 +13,7 @@ class Tabular_Model:
         self.data_dir = data_dir
         self.target_col = target_col
         self.exclude_cols = exclude_cols if exclude_cols else ['ID', target_col]
-        self.feature_cols = None  # Will be set when loading data
+        self.feature_cols = None 
         self.model = None
         self.scaler = StandardScaler()
         self.best_params = None
@@ -24,7 +24,6 @@ class Tabular_Model:
     
     def load_data(self):
         df = pd.read_csv(os.path.join("..", "data", "lifestyle_train.csv"))
-        # Set feature columns dynamically (all columns except excluded ones)
         self.feature_cols = [col for col in df.columns if col not in self.exclude_cols]
         X = df[self.feature_cols]
         y = df[self.target_col]
