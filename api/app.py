@@ -1,11 +1,11 @@
 import os
+import numpy as np
+import pandas as pd
 from fastapi import FastAPI, HTTPException, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
-from models.multimodal import MultimodalModel
-import numpy as np
-import pandas as pd
+from api.ML_utils import MultimodalModel
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
@@ -19,7 +19,6 @@ app.add_middleware(
     allow_headers=["*"], 
 )
 
-
 @app.get("/")
 def read_root():
     return {"message": "Dementia Forecast API is running"}
@@ -27,65 +26,31 @@ def read_root():
 multimodal_model = MultimodalModel()
 multimodal_model.load_models()
 
-class LifelogRecord(BaseModel):
-    activity_cal_active: float
-    activity_cal_total: float
-    activity_daily_movement: float
-    activity_day_end: float
-    activity_day_start: float
-    activity_high: float
-    activity_inactive: float
-    activity_medium: float
-    activity_met_1min: float
-    activity_met_min_high: float
-    activity_met_min_inactive: float
-    activity_met_min_low: float
-    activity_met_min_medium: float
-    activity_non_wear: float
-    activity_steps: float
-    activity_total: float
-    sleep_awake: float
-    sleep_bedtime_end: float
-    sleep_bedtime_start: float
-    sleep_deep: float
-    sleep_duration: float
-    sleep_efficiency: float
-    sleep_hypnogram_5min: float
-    sleep_is_longest: float
-    sleep_light: float
-    sleep_midpoint_at_delta: float
-    sleep_midpoint_time: float
-    sleep_period_id: float
-    sleep_rem: float
-    sleep_rmssd: float
-    sleep_rmssd_5min: float
-    sleep_total: float
-
 class MultimodalRequest(BaseModel):
-    lifelog: List[LifelogRecord]  
-    lifestyle: Dict[str, Any]     
+    lifelog: List[float]    # 1차원 리스트 (3일 x 28피처 = 84개 값)
+    lifestyle: List[float]  # 1차원 리스트 (lifestyle 피처들)
 
 class MultimodalResponse(BaseModel):
     statusCode: int
     message: str
     risk_score: float
+    is_dementia: bool      
 
 @app.post("/prediction/multimodal", response_model=MultimodalResponse)
 def predict_multimodal(req: MultimodalRequest):
     try:
-        df_lifelog = pd.DataFrame([r.dict() for r in req.lifelog])
- 
-        lifelog_ary = df_lifelog.values.flatten().reshape(1, -1)
-
-        df_lifestyle = pd.DataFrame([req.lifestyle])
-
-        preds = multimodal_model.predict(lifelog_ary, df_lifestyle)
-        score = float(preds[0]) if isinstance(preds, np.ndarray) else float(preds)
-
+        if len(req.lifelog) != 84:
+            raise HTTPException(status_code=400, detail="The lifelog data must contain exactly 84 values (3 days x 28 features).")
+        
+        risk_score = multimodal_model.predict(req.lifelog, req.lifestyle)
+        is_dementia = risk_score > 0.5
+        
         return MultimodalResponse(
             statusCode=200,
-            message=f"Multimodal prediction completed successfully using {len(req.lifelog)} days of lifelog data",
-            risk_score=score
+            message="success",
+            risk_score=risk_score,
+            is_dementia=is_dementia
         )
+        
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Prediction failed: {e}")
+        raise HTTPException(status_code=500, detail=f"failure: {str(e)}")
