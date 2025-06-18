@@ -42,9 +42,15 @@ def predict_multimodal(req: MultimodalRequest):
         if len(req.lifelog) != 84:
             raise HTTPException(status_code=400, detail="The lifelog data must contain exactly 84 values (3 days x 28 features).")
         
-        risk_score = multimodal_model.predict(req.lifelog, req.lifestyle)
+        # 가구 돌봄 유형 들어있을 때 예외처리. 임시로 가구 돌봄 유형 컬럼을 없애고 진행
+        lifestyle = req.lifestyle
+        if len(lifestyle) == 17:
+            print("Warning: Lifestyle data contains 17 features, which includes '가구돌봄유형'. This feature will be ignored for prediction.", flush=True)
+            lifestyle = lifestyle[:-1]
+
+        risk_score = multimodal_model.predict(req.lifelog, lifestyle)
         is_dementia = risk_score > 0.5
-        
+
         return MultimodalResponse(
             statusCode=200,
             message="success",

@@ -10,9 +10,9 @@ from lifelog_encoder import TimeSeriesEncoder
 from lifestyle_encoder import TableEncoder
 
 # Hyperparameters
-num_epochs_ft   = 7
+num_epochs_ft   = 13
 lr_ft           = 0.001
-reduce_class1_ratio=0.75
+reduce_class1_ratio=0.80
 
 # compute class weights for imbalanced dataset
 def compute_class_weights(dataset, reduce_class1_ratio):
@@ -48,7 +48,7 @@ class JointDataset(Dataset):
 
  
         df_tab = pd.read_csv(tab_csv).set_index('ID')
-        X_tab = df_tab.drop(columns=['치매여부_치매1기타0','ID'], errors='ignore')
+        X_tab = df_tab.drop(columns=['치매여부_치매1기타0','ID', '가구돌봄유형'], errors='ignore')
         X_tab = X_tab.astype(np.float32)
         scaler = joblib.load('lifestyle_scaler.pkl')
         X_tab = scaler.transform(X_tab.values)

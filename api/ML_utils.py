@@ -79,7 +79,7 @@ class MultimodalModel:
     def load_models(self):
         try:
             ts_input_dim = self.ts_features 
-            tab_input_dim = 17
+            tab_input_dim = 16
             
             enc_time = TimeSeriesEncoder(input_size=ts_input_dim, 
                                        hidden_size=self.ts_hidden_dim)

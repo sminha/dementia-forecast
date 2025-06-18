@@ -9,7 +9,7 @@ from config import *
 
 lifestyle_df = pd.read_csv(tab_data_path)
 
-lifestyle_feat_df = lifestyle_df.drop(columns=['ID', '치매여부_치매1기타0'], errors='ignore')
+lifestyle_feat_df = lifestyle_df.drop(columns=['ID', '치매여부_치매1기타0', '가구돌봄유형'], errors='ignore')
 lifestyle_feat_df = lifestyle_feat_df.astype(np.float32)
 
 lifestyle_scaler = StandardScaler()

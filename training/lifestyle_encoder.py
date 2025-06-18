@@ -16,7 +16,7 @@ class TableDataset(Dataset):
         df = pd.read_csv(csv_path)
         self.y = torch.tensor(df['치매여부_치매1기타0'].values, dtype=torch.long)
 
-        X = df.drop(columns=['ID', '치매여부_치매1기타0'], errors='ignore')
+        X = df.drop(columns=['ID', '치매여부_치매1기타0', '가구돌봄유형'], errors='ignore')
         X = X.astype(np.float32)
         scaler = joblib.load('lifestyle_scaler.pkl')
         X = scaler.transform(X)
