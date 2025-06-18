@@ -38,40 +38,55 @@ export const loginUser = createAsyncThunk(
   'login/loginUser',
   async (formData: { email: string; password: string }, { rejectWithValue }) => {
     // FOR LOCAL TEST
-    if (formData.email === 'test@example.com') {
-      return { statusCode: 200, message: '로그인 성공', accessToken: 'a', refreshToken: 'r', name: '홍길동' };
-    } else {
-      return rejectWithValue({ statusCode: 400, message: '로그인 실패', accessToken: null, refreshToken: null, name: '홍길동' }.message);
-    }
+    // if (formData.email === 'test@example.com') {
+    //   return { statusCode: 200, message: '로그인 성공', accessToken: 'a', refreshToken: 'r', name: '홍길동' };
+    // } else {
+    //   return rejectWithValue({ statusCode: 400, message: '로그인 실패', accessToken: null, refreshToken: null, name: '홍길동' }.message);
+    // }
 
     // FOR SERVER COMMUNIATION
-    // try {
-    //   const response = await fetch('BACKEND_URL/auth/login', {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify({
-    //       email: formData.email,
-    //       password: formData.password,
-    //     }),
-    //   });
+    try {
+      console.log('*로그인 api request body:', JSON.stringify({
+                                                email: formData.email,
+                                                password: formData.password,
+                                              })
+      );
 
-    //   const data = await response.json();
+      const response = await fetch('https://d1kt6v32r7kma5.cloudfront.net/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
 
-    //   if (data.statusCode !== 200) {
-    //     return rejectWithValue(data.message);
-    //   }
+      const data = await response.json();
 
-    //   // return {
-    //   //   accessToken: data.accessToken,
-    //   //   refreshToken: data.refreshToken,
-    //   // };
+      if (data.message !== '로그인 성공') {
+        console.log('로그인 실패');
+        console.log(data);
 
-    //   return data;
-    // } catch (error: any) {
-    //   return rejectWithValue(error?.message || '알 수 없는 오류가 발생했습니다.');
-    // }
+        return rejectWithValue(data.message);
+      }
+
+      // return {
+      //   accessToken: data.accessToken,
+      //   refreshToken: data.refreshToken,
+      // };
+
+      console.log('로그인 성공');
+      console.log('*로그인 api response:', data);
+
+      return data;
+    } catch (error: any) {
+      console.log('로그인 실패');
+      console.log(error);
+
+      return rejectWithValue(error?.message || '알 수 없는 오류가 발생했습니다.');
+    }
   }
 );
 

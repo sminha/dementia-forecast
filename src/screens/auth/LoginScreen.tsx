@@ -15,7 +15,7 @@ const LoginScreen = () => {
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity onPress={() => navigation.replace('Home')}>
           <Icon name="chevron-back" size={16} />
         </TouchableOpacity>
       </SafeAreaView>
@@ -25,10 +25,10 @@ const LoginScreen = () => {
       </View>
 
       <View style={styles.bottomArea}>
-        <TouchableOpacity style={[styles.authBox, styles.kakaoBox]} onPress={() => Linking.openURL('https://BACKEND_URL/auth/kakao')}>
+        {/* <TouchableOpacity style={[styles.authBox, styles.kakaoBox]} onPress={() => Linking.openURL('https://d1kt6v32r7kma5.cloudfront.net/auth/kakao')}>
           <Icon name="chatbubble" size={24} color="#3C1E1E" style={styles.icon} />
           <CustomText style={styles.kakaoBoxText}>카카오로 계속하기</CustomText>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
         <TouchableOpacity style={[styles.authBox, styles.emailBox]} onPress={() => setModalVisible(true)}>
           <Icon name="mail" size={24} color="#FFFFFF" style={styles.icon} />

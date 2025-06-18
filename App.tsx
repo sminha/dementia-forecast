@@ -15,11 +15,24 @@ import LifestyleStartScreen from './src/screens/lifestyle/LifestyleStartScreen.t
 import LifestyleQuestionScreen from './src/screens/lifestyle/LifestyleQuestionScreen.tsx';
 import LifestyleCompleteScreen from './src/screens/lifestyle/LifestyleCompleteScreen.tsx';
 import BiometricStartScreen from './src/screens/biometric/BiometricStartScreen.tsx';
+import BiometricInputScreen from './src/screens/biometric/BiometricInputScreen.tsx';
+import BiometricFetchCompleteScreen from './src/screens/biometric/BiometricFetchCompleteScreen.tsx';
+import BiometricSubmitCompleteScreen from './src/screens/biometric/BiometricSubmitCompleteScreen.tsx';
 import BiometricOverviewScreen from './src/screens/biometric/BiometricOverviewScreen.tsx';
-import BiometricCompleteScreen from './src/screens/biometric/BiometricCompleteScreen.tsx';
 import ReportStartScreen from './src/screens/report/ReportStartScreen.tsx';
 import ReportResultScreen from './src/screens/report/ReportResultScreen.tsx';
 import MypageScreen from './src/screens/mypage/MypageScreen.tsx';
+import AccountViewScreen from './src/screens/mypage/view/AccountViewScreen.tsx';
+import PasswordEditScreen from './src/screens/mypage/edit/PasswordEditScreen.tsx';
+import NameEditScreen from './src/screens/mypage/edit/NameEditScreen.tsx';
+import GenderEditScreen from './src/screens/mypage/edit/GenderEditScreen.tsx';
+import BirthdateEditScreen from './src/screens/mypage/edit/BirthdateEditScreen.tsx';
+import PhoneEditScreen from './src/screens/mypage/edit/PhoneEditScreen.tsx';
+import AddressEditScreen from './src/screens/mypage/edit/AddressEditScreen.tsx';
+import ReportViewScreen from './src/screens/mypage/view/ReportViewScreen.tsx';
+import LifestyleViewScreen from './src/screens/mypage/view/LifestyleViewScreen.tsx';
+import LifestyleEditScreen from './src/screens/mypage/edit/LifestyleEditScreen.tsx';
+import AccountDeleteScreen from './src/screens/mypage/AccountDeleteScreen.tsx';
 import DementiaInfoListScreen from './src/screens/dementiaInfo/DementiaInfoListScreen.tsx';
 import DementiaInfoDetailScreen from './src/screens/dementiaInfo/DementiaInfoDetailScreen.tsx';
 
@@ -91,13 +104,23 @@ function App(): React.JSX.Element {
             options={{ headerShown: false }}
           />
           <Stack.Screen
-            name="BiometricOverview"
-            component={BiometricOverviewScreen}
+            name="BiometricInput"
+            component={BiometricInputScreen}
             options={{ headerShown: false }}
           />
           <Stack.Screen
-            name="BiometricComplete"
-            component={BiometricCompleteScreen}
+            name="BiometricFetchComplete"
+            component={BiometricFetchCompleteScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="BiometricSubmitComplete"
+            component={BiometricSubmitCompleteScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="BiometricOverview"
+            component={BiometricOverviewScreen}
             options={{ headerShown: false }}
           />
           <Stack.Screen
@@ -113,6 +136,61 @@ function App(): React.JSX.Element {
           <Stack.Screen
             name="Mypage"
             component={MypageScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="AccountView"
+            component={AccountViewScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="PasswordEdit"
+            component={PasswordEditScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="NameEdit"
+            component={NameEditScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="GenderEdit"
+            component={GenderEditScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="BirthdateEdit"
+            component={BirthdateEditScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="PhoneEdit"
+            component={PhoneEditScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="AddressEdit"
+            component={AddressEditScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="ReportView"
+            component={ReportViewScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="LifestyleView"
+            component={LifestyleViewScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="LifestyleEdit"
+            component={LifestyleEditScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="AccountDelete"
+            component={AccountDeleteScreen}
             options={{ headerShown: false }}
           />
           <Stack.Screen

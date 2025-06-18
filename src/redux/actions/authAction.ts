@@ -20,3 +20,17 @@ export const loadTokens = async () => {
     return { accessToken: null, refreshToken: null };
   }
 };
+
+export const logAllAsyncStorage = async () => {
+  try {
+    const keys = await AsyncStorage.getAllKeys();
+    const stores = await AsyncStorage.multiGet(keys);
+
+    console.log('<AsyncStorage 전체 조회>');
+    stores.forEach(([key, value]) => {
+      console.log(` # ${key}: ${value}`);
+    });
+  } catch (error) {
+    console.error('AsyncStorage 전체 조회 실패:', error);
+  }
+};

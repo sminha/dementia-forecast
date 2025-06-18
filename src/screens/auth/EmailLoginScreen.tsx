@@ -4,8 +4,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../../types/navigationTypes.ts';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { setLoginFormData, clearLoginResult, loginUser } from '../../redux/slices/loginSlice.ts';
+import { fetchUser } from '../../redux/slices/userSlice.ts';
 import { AppDispatch, RootState } from '../../redux/store.ts';
+import { storeTokens, loadTokens } from '../../redux/actions/authAction.ts';
 import CustomText from '../../components/CustomText.tsx';
 import Icon from '../../components/Icon.tsx';
 
@@ -16,6 +19,9 @@ const EmailLoginScreen = () => {
   const dispatch = useDispatch<AppDispatch>();
   const formData = useSelector((state: RootState) => state.login.formData);
   const loginResult = useSelector((state: RootState) => state.login.loginResult);
+  const isLoading = useSelector((state: RootState) => state.login.isLoading);
+
+  const userInfo = useSelector((state: RootState) => state.user.userInfo); // 로그아웃 또는 탈퇴 후 사용자 정보 삭제 확인 위함
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -23,12 +29,45 @@ const EmailLoginScreen = () => {
   const [secureText, setSecureText] = useState(true);
 
   useEffect(() => {
-    if (loginResult?.statusCode === 200) {
-      navigation.navigate('Home');
-    } else if (loginResult && loginResult.statusCode !== 200) {
-      dispatch(clearLoginResult());
-    }
-  }, [loginResult, navigation, dispatch]);
+    // console.log(userInfo); // 로그아웃 또는 탈퇴 후 사용자 정보 삭제 확인 위함
+    // console.log(loginResult);
+
+    const finalizeLogin = async () => {
+      // if (loginResult?.statusCode === 200) {
+      if (loginResult?.message === '로그인 성공') {
+        if (loginResult.accessToken && loginResult.refreshToken) {
+          await storeTokens(loginResult.accessToken, loginResult.refreshToken);
+
+          const handleFetch = async () => {
+            const { accessToken } = await loadTokens();
+            if (!accessToken) {
+              console.log('로그인 정보가 없습니다.');
+              return;
+            }
+
+            dispatch(fetchUser(accessToken));
+          };
+          handleFetch();
+
+          // console.log(userInfo);
+          // console.log('사용자 정보:', JSON.stringify(userInfo));
+
+          // await AsyncStorage.setItem('loggedInUser', JSON.stringify(userInfo));
+          navigation.replace('Home');
+        }
+      } else if (loginResult && loginResult.message !== '로그인 성공') {
+        dispatch(clearLoginResult());
+      }
+    };
+
+    finalizeLogin();
+  }, [loginResult, navigation, dispatch, userInfo]);
+
+  // useEffect(() => {
+  //   if (userInfo) {
+  //     AsyncStorage.setItem('loggedInUser', JSON.stringify(userInfo));
+  //   }
+  // }, [userInfo]);
 
   const handleFocus = (field: string) => {
     setFocusedField(field);
@@ -103,13 +142,23 @@ const EmailLoginScreen = () => {
         </View>
       </ScrollView>
 
-      {loginResult && loginResult.statusCode !== 200 &&
+      {loginResult && loginResult.message !== '로그인 성공' &&
         <CustomText style={styles.failText}>로그인에 실패하였습니다. 아이디와 비밀번호를 정확히 입력해주세요.</CustomText>
       }
 
       <View>
-        <TouchableOpacity onPress={handleLogin} style={[styles.actionButton, isFormValid() ? styles.actionButtonEnabled : styles.actionButtonDisabled]} disabled={!isFormValid()}>
-          <CustomText style={[styles.actionButtonText, isFormValid() ? styles.actionButtonTextEnabled : styles.actionButtonTextDisabled]}>로그인</CustomText>
+        <TouchableOpacity
+          onPress={handleLogin}
+          style={[styles.actionButton, isFormValid() ? styles.actionButtonEnabled : styles.actionButtonDisabled]}
+          // disabled={!isFormValid()}>
+          disabled={!isFormValid() || isLoading}>
+
+          {/* <CustomText style={[styles.actionButtonText, isFormValid() ? styles.actionButtonTextEnabled : styles.actionButtonTextDisabled]}>
+            로그인
+          </CustomText> */}
+          <CustomText style={[styles.actionButtonText, isFormValid() && !isLoading ? styles.actionButtonTextEnabled : styles.actionButtonTextDisabled]}>
+            {isLoading ? '로그인 중...' : '로그인'}
+          </CustomText>
         </TouchableOpacity>
       </View>
     </View>

@@ -61,8 +61,9 @@ const EmailSignUpScreen = () => {
 
 
   useEffect(() => {
-    if (registrationResult?.statusCode === 200) {
-      navigation.navigate('EmailSignUpComplete');
+    // if (registrationResult?.statusCode === 200) {
+    if (registrationResult?.message === '회원가입 완료') {
+      navigation.replace('EmailSignUpComplete');
     } else if (registrationResult?.message === '이미 존재하는 이메일입니다.')  {
       setTimeout(() => {
         emailInputRef.current?.focus();
@@ -312,7 +313,7 @@ const EmailSignUpScreen = () => {
                 {formData.birthdate && !isBirthdateValid(formData.birthdate) && (
                   <CustomText style={formData.birthdate === '' ? styles.confirmTextHidden : styles.confirmText}>생년월일은 6자리 숫자여야 합니다.</CustomText>
                 )}
-              </View>
+            </View>
           </View>
 
           <View style={styles.row}>
@@ -325,10 +326,10 @@ const EmailSignUpScreen = () => {
               keyboardType="numeric"
             />
             <View style={styles.confirmContainer}>
-                {formData.phone && !isPhoneValid(formData.phone) && (
-                  <CustomText style={formData.phone === '' ? styles.confirmTextHidden : styles.confirmText}>전화번호는 11자리 숫자여야 합니다.</CustomText>
-                )}
-              </View>
+              {formData.phone && !isPhoneValid(formData.phone) && (
+                <CustomText style={formData.phone === '' ? styles.confirmTextHidden : styles.confirmText}>전화번호는 11자리 숫자여야 합니다.</CustomText>
+              )}
+            </View>
           </View>
 
           <View style={styles.row}>
