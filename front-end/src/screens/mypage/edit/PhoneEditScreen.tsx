@@ -1,0 +1,218 @@
+import React, { useState, useEffect } from 'react';
+import { ScrollView, View, TouchableOpacity, TextInput, StyleSheet } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from '../../../types/navigationTypes.ts';
+import { setUserInfo, updateUser, clearUpdateResult } from '../../../redux/slices/userSlice.ts';
+import { AppDispatch, RootState } from '../../../redux/store.ts';
+import { loadTokens } from '../../../redux/actions/authAction.ts';
+import CustomText from '../../../components/CustomText.tsx';
+import Icon from 'react-native-vector-icons/Ionicons';
+
+const PhoneEditScreen = () => {
+  type Navigation = StackNavigationProp<RootStackParamList, 'Home'>;
+  const navigation = useNavigation<Navigation>();
+
+  const dispatch = useDispatch<AppDispatch>();
+  const userInfo = useSelector((state: RootState) => state.user.userInfo);
+  const updateResult = useSelector((state: RootState) => state.user.updateResult);
+
+  const [phone, setPhone] = useState('');
+  const [focusedField, setFocusedField] = useState<string | null>(null);
+
+  useEffect(() => {
+    // if (updateResult?.statusCode === 200) {
+    if (updateResult?.message === '회원 정보가 수정되었습니다.') {
+      dispatch(setUserInfo({ field: 'phone', value: phone }));
+      dispatch(clearUpdateResult());
+      navigation.goBack();
+    } else if (updateResult && updateResult.message !== '회원 정보가 수정되었습니다.') {
+      dispatch(clearUpdateResult());
+    }
+  }, [updateResult, phone, navigation, dispatch]);
+
+  const handleFocus = (field: string) => {
+    setFocusedField(field);
+  };
+
+  const handleBlur = () => {
+    setFocusedField(null);
+  };
+
+  const isFormValid = () => {
+    return /^01[0-9]{9}$/.test(phone) && phone !== userInfo.phone;
+  };
+
+  const handleUpdate = async () => {
+    const { accessToken } = await loadTokens();
+    if (!accessToken) {
+      console.log('로그인 정보가 없습니다.');
+      return;
+    }
+
+    // dispatch(updateUser({ token: accessToken, userInfo: { ...userInfo} , updatedFields: { phone } }));
+    dispatch(updateUser({ token: accessToken, userInfo: { ...userInfo, phone } }));
+    // dispatch(updateUser({ token: accessToken, userInfo }));
+  };
+
+  return (
+    <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false} overScrollMode="never">
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.backContainer} onPress={() => navigation.goBack()}>
+            <Icon name="chevron-back" size={16} color="gray" />
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.section}>
+          <View style={styles.title}>
+            <TouchableOpacity style={styles.titleRow}>
+              <CustomText style={styles.titleText}>전화번호 수정하기</CustomText>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <View style={styles.inputGroup}>
+          <CustomText style={[styles.labelText, focusedField === 'phone' && styles.labelTextFocused]}>전화번호</CustomText>
+          <View style={styles.inputFieldWrapper}>
+            <TextInput
+              style={[styles.inputField, focusedField === 'phone' && styles.inputFieldFocused]}
+              onFocus={() => handleFocus('phone')}
+              onBlur={() => handleBlur()}
+              onChangeText={(text) => {
+                setPhone(text);
+                // dispatch(setUserInfo({ field: 'phone', value: text }));
+              }}
+              value={phone}
+              keyboardType="numeric"
+            />
+            <View style={styles.confirmContainer}>
+              {phone && !isFormValid() && (
+                <CustomText style={phone === '' ? styles.confirmTextHidden : styles.confirmText}>전화번호는 11자리 숫자여야 합니다.</CustomText>
+              )}
+            </View>
+            {phone !== '' &&
+            <TouchableOpacity onPress={() => setPhone('')} style={styles.clearButton}>
+              <Icon name="close-circle" size={20} color="#B4B4B4" />
+            </TouchableOpacity>
+            }
+          </View>
+        </View>
+
+        <View>
+          <TouchableOpacity onPress={handleUpdate} style={[styles.actionButton, isFormValid() ? styles.actionButtonEnabled : styles.actionButtonDisabled]} disabled={!isFormValid()}>
+            <CustomText style={[styles.actionButtonText, isFormValid() ? styles.actionButtonTextEnabled : styles.actionButtonTextDisabled]}>수정 완료</CustomText>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
+  scrollContent: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    position: 'relative',
+    height: 50,
+  },
+  backContainer: {
+    paddingHorizontal: 4,
+    zIndex: 1,
+  },
+  section: {
+    marginTop: 20,
+  },
+  title: {
+    paddingHorizontal: 5,
+    paddingTop: 10,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    // marginBottom: 20,
+    marginBottom: 30,
+  },
+  titleText: {
+    fontSize: 24,
+  },
+  inputGroup: {
+    marginBottom: 40,
+    marginHorizontal: 5,
+  },
+  labelText: {
+    fontSize: 18,
+    color: '#202020',
+  },
+  labelTextFocused: {
+    color: '#9F8473',
+  },
+  inputFieldWrapper: {
+    // position: 'relative',
+    flexDirection: 'column',
+    // alignItems: 'center',
+  },
+  clearButton: {
+    position: 'absolute',
+    top: '40%',
+    right: 1,
+    transform: [{ translateY: -8 }],
+  },
+  inputField: {
+    width: '100%',
+    paddingRight: 35,
+    marginTop: 5,
+    borderBottomWidth: 1,
+    borderBottomColor: '#B4B4B4',
+    fontSize: 18,
+  },
+  inputFieldFocused: {
+    borderBottomColor: '#9F8473',
+  },
+  confirmContainer: {
+    height: 20,
+  },
+  confirmText: {
+    marginTop: 5,
+    color: '#D64747',
+  },
+  confirmTextHidden: {
+    marginTop: 5,
+    color: 'transparent',
+  },
+  actionButton: {
+    alignItems: 'center',
+    padding: 15,
+    marginTop: 10,
+    marginBottom: 5,
+    marginHorizontal: 5,
+    borderRadius: 5,
+  },
+  actionButtonEnabled: {
+    backgroundColor: '#D6CCC2',
+  },
+  actionButtonDisabled: {
+    backgroundColor: '#F2EFED',
+  },
+  actionButtonText: {
+    fontSize: 20,
+  },
+  actionButtonTextEnabled: {
+    color: '#575553',
+  },
+  actionButtonTextDisabled: {
+    color: '#B4B4B4',
+  },
+});
+
+export default PhoneEditScreen;
